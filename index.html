@@ -1,0 +1,1013 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CURSORCODE — INNOVEXXA</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+:root{
+  --bg:#070B10;
+  --panel:#0E141C;
+  --panel-2:#121A24;
+  --line:#1E2933;
+  --teal:#4FD8E8;
+  --teal-dim: rgba(79,216,232,0.16);
+  --amber:#FF7A50;
+  --amber-dim: rgba(255,122,80,0.16);
+  --green:#3DDC84;
+  --text:#EAF2F5;
+  --muted:#7C8A96;
+  --muted-2:#4E5A64;
+  --radius:18px;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  background:radial-gradient(1400px 900px at 50% -10%, #0D1520 0%, #070B10 55%, #05070A 100%);
+  color:var(--text);
+  font-family:'Inter',sans-serif;
+  min-height:100vh;
+}
+.page{
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+}
+#topbar{
+  position:sticky; top:0; z-index:60;
+  background:rgba(7,11,16,0.85); backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--line);
+  padding:14px 28px;
+  display:flex; align-items:center; justify-content:space-between; gap:16px;
+  flex-wrap:wrap;
+}
+#topbar .brandmark{ display:flex; align-items:center; gap:10px; }
+#topbar .brandmark .mark{ font-size:22px; }
+#topbar h1.brand{ font-size:22px; margin:0; }
+#topbar .built{ font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--muted); letter-spacing:0.08em; margin-left:8px; }
+#statusbar{
+  display:flex; gap:10px; align-items:center; justify-content:flex-end;
+  font-family:'JetBrains Mono',monospace;
+  font-size:10.5px;
+  letter-spacing:0.04em;
+  color:var(--muted);
+  flex-wrap:wrap;
+}
+#statusbar .dot{width:6px;height:6px;border-radius:50%;display:inline-block;margin-right:5px;}
+#statusbar .on{background:var(--green); box-shadow:0 0 8px var(--green);}
+#statusbar .off{background:#5A3232;}
+#statusbar .chip{display:flex;align-items:center;padding:5px 11px;border-radius:20px;background:var(--panel);border:1px solid var(--line);}
+#main-wrap{
+  flex:1; width:100%;
+  display:flex; justify-content:center;
+  padding:32px 24px 140px;
+}
+#app{
+  width:100%; max-width:900px;
+}
+
+h1.brand{
+  font-family:'Space Grotesk',sans-serif;
+  font-size:42px; font-weight:700; letter-spacing:-0.02em; margin:0;
+  background:linear-gradient(180deg,#F4FBFC 0%,var(--teal) 140%);
+  -webkit-background-clip:text; background-clip:text; color:transparent;
+}
+.screen-title{
+  font-family:'Space Grotesk',sans-serif;
+  font-size:22px; font-weight:600; margin:2px 0 4px;
+}
+.screen-sub{ color:var(--muted); font-size:13px; margin-bottom:20px; }
+.eyebrow{
+  font-family:'JetBrains Mono',monospace; font-size:10.5px; letter-spacing:0.12em;
+  color:var(--teal); text-transform:uppercase; margin-bottom:6px; display:block;
+}
+
+/* scanning system */
+[data-scan]{ outline:none; transition:box-shadow .15s ease, transform .12s ease, border-color .15s ease; }
+.scan-active{
+  border-color:var(--teal) !important;
+  box-shadow:0 0 0 2px var(--teal), 0 0 24px 2px var(--teal-dim);
+  transform:scale(1.015);
+}
+.scan-active .pip{opacity:1;}
+.scan-selected{
+  animation:selectPulse .5s ease;
+}
+@keyframes selectPulse{
+  0%{ box-shadow:0 0 0 2px var(--teal), 0 0 0 rgba(79,216,232,0.5); }
+  40%{ box-shadow:0 0 0 4px var(--teal), 0 0 44px 10px rgba(79,216,232,0.55); }
+  100%{ box-shadow:0 0 0 2px var(--teal), 0 0 24px 2px var(--teal-dim); }
+}
+
+/* dashboard cards */
+.card-grid{ display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+@media (min-width:640px){ .card-grid{ grid-template-columns:repeat(3,1fr); } }
+@media (min-width:900px){ .card-grid{ grid-template-columns:repeat(4,1fr); } }
+.card{
+  background:var(--panel);
+  border:1.5px solid var(--line);
+  border-radius:var(--radius);
+  padding:18px 16px;
+  cursor:pointer;
+  position:relative;
+  min-height:128px;
+  display:flex; flex-direction:column; justify-content:space-between;
+  transition:border-color .15s ease, transform .15s ease;
+}
+.card:hover{ border-color:#2A3A45; transform:translateY(-2px); }
+.card .icon{ font-size:28px; margin-bottom:8px; }
+.card .title{ font-weight:600; font-size:15px; font-family:'Space Grotesk',sans-serif; }
+.card .desc{ color:var(--muted); font-size:12px; margin-top:3px; }
+.card.emergency{ background:linear-gradient(160deg,var(--amber-dim),var(--panel)); border-color:#4A2C22; grid-column:span 2; flex-direction:row; align-items:center; gap:12px; min-height:auto; padding:16px 18px;}
+.card.emergency .title{ color:var(--amber); }
+.pip{
+  position:absolute; top:12px; right:12px; width:7px; height:7px; border-radius:50%;
+  background:var(--teal); opacity:0; box-shadow:0 0 8px var(--teal);
+}
+
+/* generic list row (contacts, settings) */
+.row{
+  background:var(--panel); border:1.5px solid var(--line); border-radius:14px;
+  padding:15px 18px; margin-bottom:10px; cursor:pointer;
+  display:flex; align-items:center; justify-content:space-between;
+  transition:border-color .15s ease;
+}
+.row:hover{ border-color:#2A3A45; }
+.row .rt{ font-weight:600; font-size:14.5px; }
+.row .rs{ color:var(--muted); font-size:12px; margin-top:2px; }
+.row .val{ font-family:'JetBrains Mono',monospace; font-size:11.5px; color:var(--teal); }
+
+/* buttons */
+.btn{
+  background:var(--panel-2); border:1.5px solid var(--line); border-radius:14px;
+  padding:16px; text-align:center; font-weight:600; font-size:14px; cursor:pointer;
+  font-family:'Space Grotesk',sans-serif;
+  transition:border-color .15s ease, transform .1s ease;
+}
+.btn:hover{ border-color:#2A3A45; }
+.btn.primary{ background:linear-gradient(160deg,var(--teal-dim),var(--panel-2)); border-color:#28535A; color:var(--teal); }
+.btn.danger{ background:linear-gradient(160deg,var(--amber-dim),var(--panel-2)); border-color:#4A2C22; color:var(--amber); }
+.btn-row{ display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:16px; }
+.stack{ display:flex; flex-direction:column; gap:10px; margin-top:16px;}
+@media (min-width:640px){
+  .stack{ flex-direction:row; flex-wrap:wrap; }
+  .stack .btn{ flex:1; min-width:180px; }
+}
+
+/* keyboard */
+.msgbar{
+  background:var(--panel); border:1.5px solid var(--line); border-radius:16px;
+  padding:18px 20px; min-height:60px; font-family:'Space Grotesk',sans-serif; font-size:19px;
+  margin-bottom:16px; word-break:break-word;
+}
+.msgbar .cursor-blink{ display:inline-block; width:2px; height:18px; background:var(--teal); margin-left:2px; vertical-align:middle; animation:blinkc 1s steps(1) infinite; }
+@keyframes blinkc{ 50%{opacity:0;} }
+.msgbar.empty{ color:var(--muted-2); font-size:13px; font-family:'Inter'; }
+.kb-grid{ display:grid; grid-template-columns:repeat(6,1fr); gap:8px; }
+@media (min-width:640px){ .kb-grid{ grid-template-columns:repeat(9,1fr); } }
+@media (min-width:900px){ .kb-grid{ grid-template-columns:repeat(13,1fr); } }
+.key{
+  background:var(--panel); border:1.5px solid var(--line); border-radius:10px;
+  aspect-ratio:1; display:flex; align-items:center; justify-content:center;
+  font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:15px; cursor:pointer;
+  transition:border-color .15s ease;
+}
+.key:hover{ border-color:#2A3A45; }
+.key-wide{ grid-column:span 2; aspect-ratio:auto; padding:14px 0; font-size:12px; }
+.kb-controls{ display:grid; grid-template-columns:1fr; gap:7px; margin-top:8px; }
+.kb-controls .key-wide{ grid-column:auto; }
+@media (min-width:640px){ .kb-controls{ grid-template-columns:repeat(3,1fr); } }
+
+/* toggle device card */
+.device-card{
+  background:var(--panel); border:1.5px solid var(--line); border-radius:var(--radius);
+  padding:18px; margin-bottom:12px; cursor:pointer;
+  display:flex; align-items:center; justify-content:space-between;
+  transition:border-color .15s ease;
+}
+.device-card:hover{ border-color:#2A3A45; }
+.device-card .icon{ font-size:26px; }
+.device-card .name{ font-weight:600; font-family:'Space Grotesk'; font-size:15px; }
+.device-card .state{ font-size:11px; color:var(--muted); font-family:'JetBrains Mono'; margin-top:2px;}
+.switch{ width:46px; height:26px; border-radius:20px; background:#232D37; position:relative; flex-shrink:0; }
+.switch.on{ background:linear-gradient(90deg,#1E6E6E,var(--teal)); }
+.switch .knob{ width:20px;height:20px;border-radius:50%; background:#fff; position:absolute; top:3px; left:3px; transition:left .2s; }
+.switch.on .knob{ left:23px; }
+
+/* wheelchair */
+.wheel-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-top:8px; max-width:420px; margin-left:auto; margin-right:auto;}
+.wbtn{
+  background:var(--panel); border:1.5px solid var(--line); border-radius:18px;
+  aspect-ratio:1; display:flex; align-items:center; justify-content:center;
+  font-size:28px; cursor:pointer;
+  transition:border-color .15s ease;
+}
+.wbtn:hover{ border-color:#2A3A45; }
+.wbtn.stop{ background:linear-gradient(160deg,var(--amber-dim),var(--panel)); border-color:#4A2C22; color:var(--amber); grid-column:2; }
+.feedback-banner{
+  font-family:'JetBrains Mono',monospace; font-size:11.5px; color:var(--teal);
+  background:var(--teal-dim); border:1px solid #22525A; border-radius:10px; padding:10px 12px; margin-top:14px; text-align:center;
+}
+
+/* connection screen */
+.conn-status{ text-align:center; padding:26px 0; }
+.conn-status .big-dot{ width:16px;height:16px;border-radius:50%; margin:0 auto 10px; }
+.conn-status .big-dot.on{ background:var(--green); box-shadow:0 0 22px var(--green); }
+.conn-status .big-dot.off{ background:#5A3232; box-shadow:0 0 22px rgba(90,50,50,0.5);}
+.conn-status .label{ font-family:'JetBrains Mono',monospace; font-size:13px; letter-spacing:0.05em; }
+
+/* log */
+.log-entry{
+  font-family:'JetBrains Mono',monospace; font-size:11.5px; color:var(--muted);
+  padding:8px 0; border-bottom:1px dashed var(--line); display:flex; gap:10px;
+}
+.log-entry .t{ color:var(--muted-2); flex-shrink:0; }
+.log-entry .c{ color:var(--teal); }
+
+/* confirmation */
+.confirm-hero{ text-align:center; padding:30px 10px; }
+.confirm-hero .big{ font-family:'Space Grotesk'; font-size:28px; font-weight:700; margin-bottom:8px;}
+.check{ font-size:44px; }
+
+/* toggles list (settings) */
+.seg{ display:flex; gap:8px; margin-top:8px; }
+.seg-opt{ flex:1; text-align:center; padding:10px; border-radius:10px; border:1.5px solid var(--line); background:var(--panel); font-size:12.5px; font-weight:600; cursor:pointer; font-family:'JetBrains Mono';}
+.seg-opt.sel{ border-color:var(--teal); color:var(--teal); background:var(--teal-dim); }
+
+/* bottom control bar */
+#controlbar{
+  position:fixed; bottom:0; left:0; right:0;
+  padding:16px 24px 20px;
+  background:linear-gradient(0deg, var(--bg) 60%, transparent);
+  display:flex; flex-direction:column; align-items:center; gap:8px;
+  z-index:40;
+}
+#scanlabel{
+  font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:0.1em; color:var(--muted-2);
+  display:flex; align-items:center; gap:6px;
+}
+#scanlabel .wave{ display:inline-flex; gap:2px; align-items:flex-end; height:10px; }
+#scanlabel .wave i{ width:2px; background:var(--teal); display:inline-block; animation:wv 1s infinite ease-in-out; }
+#scanlabel .wave i:nth-child(2){animation-delay:.15s;} #scanlabel .wave i:nth-child(3){animation-delay:.3s;} #scanlabel .wave i:nth-child(4){animation-delay:.45s;}
+@keyframes wv{ 0%,100%{height:3px;} 50%{height:10px;} }
+#blinkBtn{
+  width:100%; max-width:360px; padding:18px; border-radius:20px; border:none; cursor:pointer;
+  background:linear-gradient(160deg,var(--teal),#1D9BAA);
+  color:#04181B; font-family:'Space Grotesk'; font-weight:700; font-size:16px;
+  box-shadow:0 8px 30px rgba(79,216,232,0.35);
+  display:flex; align-items:center; justify-content:center; gap:8px;
+  letter-spacing:0.02em;
+}
+#blinkBtn:hover{ filter:brightness(1.05); }
+#blinkBtn:active{ transform:scale(0.97); }
+#blinkBtn .eye{ font-size:18px; }
+#hint{ font-size:10px; color:var(--muted-2); font-family:'JetBrains Mono'; }
+
+.emg-fab{
+  width:38px; height:38px; border-radius:50%;
+  background:var(--amber-dim); border:1.5px solid #4A2C22; color:var(--amber);
+  display:flex; align-items:center; justify-content:center; font-size:16px; cursor:pointer;
+  flex-shrink:0;
+}
+
+/* splash */
+#splash{
+  position:fixed; inset:0; z-index:100; background:var(--bg);
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px;
+  animation:fadeOut .6s ease 2.4s forwards;
+}
+#splash .mark{ font-size:52px; }
+#splash .built{ font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--teal); letter-spacing:0.1em; margin-top:6px;}
+#splash .tag{ color:var(--muted); font-size:12.5px; margin-top:16px; max-width:280px; text-align:center; line-height:1.5; }
+#splash .ring{
+  width:64px;height:64px;border-radius:50%;border:3px solid var(--line); border-top-color:var(--teal);
+  animation:spin 1.1s linear infinite; margin-bottom:6px;
+}
+@keyframes spin{ to{ transform:rotate(360deg);} }
+@keyframes fadeOut{ to{ opacity:0; visibility:hidden; } }
+
+::-webkit-scrollbar{width:0;}
+</style>
+</head>
+<body>
+
+<div class="page">
+
+  <div id="splash">
+    <div class="ring"></div>
+    <div class="mark">🧿</div>
+    <h1 class="brand" style="font-size:38px;">CURSORCODE</h1>
+    <div class="built">BUILT BY INNOVEXXA</div>
+    <div class="tag">Assistive technology for communication, mobility &amp; independence</div>
+  </div>
+
+  <div id="topbar">
+    <div class="brandmark">
+      <span class="mark">🧿</span>
+      <h1 class="brand">CURSORCODE</h1>
+      <span class="built">BY INNOVEXXA</span>
+    </div>
+    <div style="display:flex; align-items:center; gap:12px;">
+      <div id="statusbar"></div>
+      <div class="emg-fab" id="emgfab" data-scan data-log="EMERGENCY" onclick="go('emergency')" title="Emergency — always one blink away">🚨</div>
+    </div>
+  </div>
+
+  <div id="main-wrap">
+    <div id="app"></div>
+  </div>
+
+  <div id="controlbar">
+    <div id="scanlabel"><span class="wave"><i></i><i></i><i></i><i></i></span> <span id="scanlabelText">SCANNING</span></div>
+    <button id="blinkBtn" onclick="selectCurrent()"><span class="eye">👁</span> SIMULATE BLINK</button>
+    <div id="hint">or press SPACE to blink · E for emergency</div>
+  </div>
+
+</div>
+
+<script>
+/* ============ STATE ============ */
+const state = {
+  screen: 'mode-select',
+  mode: null, // null | 'special' | 'customizer'
+  history: [],
+  bluetooth: true,
+  eog: 'ready', // ready | waiting
+  cursorSpeed: 'medium', // slow|medium|fast
+  sensitivity: 'medium',
+  language: 'English',
+  audio: true,
+  haptic: true,
+  message: '',
+  ytQuery: '',
+  devices: {
+    fan: false,
+    light: false,
+    custom1: { name:'Custom Device 1', on:false },
+    custom2: { name:'Custom Device 2', on:false }
+  },
+  contacts: [
+    {name:'Mother', phone:'+91 98xxxxxx01', rel:'Mother'},
+    {name:'Father', phone:'+91 98xxxxxx02', rel:'Father'},
+    {name:'Brother', phone:'+91 98xxxxxx03', rel:'Brother'},
+    {name:'Caregiver', phone:'+91 98xxxxxx04', rel:'Caregiver'},
+    {name:'Doctor', phone:'+91 98xxxxxx05', rel:'Physician'},
+    {name:'Emergency Contact', phone:'+91 98xxxxxx06', rel:'Emergency'},
+  ],
+  contactDraft: {name:'', phone:'', rel:''},
+  contactEditIndex: null,
+  pendingSendText: '',
+  selectedContact: null,
+  wheelchairLast: '—',
+  wheelchairTimeout: null,
+  log: [],
+  pendingScreenAfterConfirm: null,
+};
+
+const SPEED_MS = { slow:1500, medium:950, fast:600 };
+
+/* ============ UTIL ============ */
+function ts(){
+  const d = new Date();
+  return d.toTimeString().slice(0,8);
+}
+function pushLog(text){
+  state.log.unshift({t: ts(), c: text});
+  if(state.log.length > 40) state.log.pop();
+}
+function playBeep(){
+  if(!state.audio) return;
+  try{
+    const ctx = new (window.AudioContext||window.webkitAudioContext)();
+    const o = ctx.createOscillator(); const g = ctx.createGain();
+    o.type='sine'; o.frequency.value=880;
+    g.gain.setValueAtTime(0.06, ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime+0.18);
+    o.connect(g); g.connect(ctx.destination);
+    o.start(); o.stop(ctx.currentTime+0.18);
+  }catch(e){}
+}
+function vibrate(){
+  if(!state.haptic) return;
+  if(navigator.vibrate) navigator.vibrate(25);
+}
+function go(screen, pushHistory=true){
+  if(pushHistory && state.screen !== screen) state.history.push(state.screen);
+  state.screen = screen;
+  render();
+}
+function back(){
+  const prev = state.history.pop() || 'dashboard';
+  state.screen = prev;
+  render();
+}
+function selectMode(mode){
+  state.mode = mode;
+  state.history = [];
+  state.screen = 'dashboard';
+  pushLog('MODE → ' + (mode==='special' ? 'SPECIAL-PERSON (eye-blink)' : 'CUSTOMIZER (touch)'));
+  render();
+}
+function switchMode(){
+  state.mode = null;
+  state.history = [];
+  state.screen = 'mode-select';
+  clearInterval(scanTimer);
+  scanItems = [];
+  render();
+}
+
+/* ============ SCAN ENGINE ============ */
+let scanTimer=null, scanIdx=0, scanItems=[];
+function setupScanning(){
+  if(state.mode !== 'special'){ clearInterval(scanTimer); scanItems=[]; return; }
+  const emg = document.getElementById('emgfab');
+  const appItems = Array.from(document.querySelectorAll('#app [data-scan]'));
+  scanItems = (emg && emg.style.display !== 'none') ? [emg, ...appItems] : appItems;
+  scanIdx = 0;
+  clearInterval(scanTimer);
+  if(scanItems.length===0) return;
+  highlightCurrent();
+  scanTimer = setInterval(()=>{
+    scanIdx = (scanIdx+1) % scanItems.length;
+    highlightCurrent();
+  }, SPEED_MS[state.cursorSpeed]);
+}
+function highlightCurrent(){
+  scanItems.forEach(el=>el.classList.remove('scan-active'));
+  if(scanItems[scanIdx]) scanItems[scanIdx].classList.add('scan-active');
+}
+function selectCurrent(){
+  if(state.mode !== 'special') return;
+  if(!scanItems[scanIdx]) return;
+  const el = scanItems[scanIdx];
+  el.classList.remove('scan-selected'); void el.offsetWidth; el.classList.add('scan-selected');
+  playBeep(); vibrate();
+  pushLog('BLINK → ' + (el.dataset.log || el.textContent.trim().slice(0,24)));
+  renderStatusBar();
+  setTimeout(()=>{ el.click(); }, 140);
+}
+document.addEventListener('keydown', (e)=>{
+  if(state.mode==='special' && e.code==='Space'){ e.preventDefault(); selectCurrent(); }
+  if(state.screen!=='mode-select' && (e.key==='e' || e.key==='E')){ go('emergency'); }
+});
+
+/* ============ ACTIONS ============ */
+function sendNeed(kind){
+  state.pendingSendText = kind;
+  go(kind.toLowerCase().replace(' ','-')+'-confirm');
+}
+function confirmSend(alertText){
+  pushLog('ALERT SENT: "' + alertText + '"');
+  render();
+}
+function typeLetter(l){
+  state.message += l;
+  render();
+}
+function typeSpace(){ state.message += ' '; render(); }
+function backspace(){ state.message = state.message.slice(0,-1); render(); }
+function clearMsg(){ state.message=''; render(); }
+function goSendFlow(){
+  if(!state.message.trim()) return;
+  go('select-contact');
+}
+function pickContact(name){
+  state.selectedContact = name;
+  go('message-sent');
+  pushLog('MESSAGE → ' + name + ': "' + state.message + '"');
+}
+function selectContactForMessage(name){
+  state.selectedContact = name;
+  go('confirm-recipient');
+}
+function sendMessageToContact(){
+  pushLog('MESSAGE → ' + state.selectedContact + ': "' + state.message + '"');
+  go('message-sent');
+}
+function goYoutube(){
+  state.ytQuery = state.message;
+  go('youtube');
+}
+function toggleDevice(key){
+  if(key==='fan') state.devices.fan = !state.devices.fan;
+  else if(key==='light') state.devices.light = !state.devices.light;
+  else state.devices[key].on = !state.devices[key].on;
+  const label = key==='fan'?'FAN':key==='light'?'LIGHT':state.devices[key].name.toUpperCase();
+  const on = key==='fan'?state.devices.fan:key==='light'?state.devices.light:state.devices[key].on;
+  pushLog((on?'':'DE-') + 'ACTIVATE → ' + label.replace(/\s/g,'_') + '_' + (on?'ON':'OFF'));
+  render();
+}
+function wheelchairCmd(cmd){
+  if(!state.bluetooth){
+    state.wheelchairLast = 'BLOCKED — BLUETOOTH DISCONNECTED';
+    pushLog('COMMAND BLOCKED: no Bluetooth link');
+    render();
+    return;
+  }
+  state.wheelchairLast = cmd;
+  pushLog('COMMAND SENT: ' + cmd);
+  clearTimeout(state.wheelchairTimeout);
+  if(cmd !== 'STOP'){
+    state.wheelchairTimeout = setTimeout(()=>{
+      state.wheelchairLast = 'STOP (auto — timeout)';
+      pushLog('AUTO STOP: command timeout reached');
+      render();
+    }, 5000);
+  }
+  render();
+}
+function toggleBluetooth(){
+  state.bluetooth = !state.bluetooth;
+  state.eog = state.bluetooth ? 'ready' : 'waiting';
+  pushLog('BLUETOOTH ' + (state.bluetooth?'CONNECTED':'DISCONNECTED'));
+  if(!state.bluetooth){ state.wheelchairLast = 'STOP (link lost)'; clearTimeout(state.wheelchairTimeout); }
+  render();
+}
+function setSpeed(s){ state.cursorSpeed = s; render(); }
+function setSensitivity(s){ state.sensitivity = s; render(); }
+function setLanguage(l){ state.language = l; render(); }
+function toggleAudio(){ state.audio = !state.audio; render(); }
+function toggleHaptic(){ state.haptic = !state.haptic; render(); }
+function renameDevice(key){
+  const cur = state.devices[key].name;
+  const n = prompt('Rename device', cur);
+  if(n && n.trim()){ state.devices[key].name = n.trim(); render(); }
+}
+function saveDeviceNames(){
+  if(!state.devices.custom1.name.trim()) state.devices.custom1.name = 'Custom Device 1';
+  if(!state.devices.custom2.name.trim()) state.devices.custom2.name = 'Custom Device 2';
+  pushLog('DEVICE 1 → ' + state.devices.custom1.name.toUpperCase());
+  pushLog('DEVICE 2 → ' + state.devices.custom2.name.toUpperCase());
+  render();
+}
+function openAddContact(){
+  state.contactDraft = {name:'', phone:'', rel:''};
+  state.contactEditIndex = null;
+  go('contact-form');
+}
+function openEditContact(i){
+  state.contactDraft = {...state.contacts[i]};
+  state.contactEditIndex = i;
+  go('contact-form');
+}
+function saveContact(){
+  const d = state.contactDraft;
+  if(!d.name || !d.name.trim()) return;
+  if(state.contactEditIndex===null){
+    state.contacts.push({name:d.name.trim(), phone:d.phone.trim(), rel:d.rel.trim()||'Contact'});
+    pushLog('CONTACT ADDED: ' + d.name.trim());
+  } else {
+    state.contacts[state.contactEditIndex] = {name:d.name.trim(), phone:d.phone.trim(), rel:d.rel.trim()||'Contact'};
+    pushLog('CONTACT UPDATED: ' + d.name.trim());
+  }
+  go('settings-contacts', false);
+}
+function deleteContact(i){
+  const name = state.contacts[i].name;
+  state.contacts.splice(i,1);
+  pushLog('CONTACT DELETED: ' + name);
+  render();
+}
+
+/* ============ RENDER: STATUS BAR ============ */
+function renderStatusBar(){
+  const b = document.getElementById('statusbar');
+  if(state.mode === 'customizer'){
+    b.innerHTML = `
+      <span class="chip"><span class="dot on"></span>CUSTOMIZER MODE</span>
+      <span class="chip">TOUCH CONTROL</span>
+      <span class="chip" style="cursor:pointer;" onclick="switchMode()">⇄ SWITCH MODE</span>
+    `;
+    return;
+  }
+  b.innerHTML = `
+    <span class="chip"><span class="dot ${state.bluetooth?'on':'off'}"></span>BLUETOOTH ${state.bluetooth?'CONNECTED':'DISCONNECTED'}</span>
+    <span class="chip"><span class="dot ${state.eog==='ready'?'on':'off'}"></span>EOG ${state.eog==='ready'?'READY':'WAITING'}</span>
+    <span class="chip"><span class="dot on"></span>CURSOR SCANNING</span>
+  `;
+}
+
+/* ============ SCREEN RENDERERS ============ */
+function screenHeader(eyebrow, title, sub){
+  return `<span class="eyebrow">${eyebrow}</span><div class="screen-title">${title}</div>${sub?`<div class="screen-sub">${sub}</div>`:''}`;
+}
+function backRow(label='BACK'){
+  return `<div class="btn" data-scan data-log="${label}" onclick="back()" style="margin-top:18px;">← ${label}</div>`;
+}
+
+function renderModeSelect(){
+  return `
+    <div style="text-align:center; padding-top:40px;">
+      <div style="font-size:44px;">🧿</div>
+      <h1 class="brand" style="font-size:48px; margin-top:8px;">CURSORCODE</h1>
+      <div style="font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--teal); letter-spacing:0.14em; margin-top:6px;">BUILT BY INNOVEXXA</div>
+      <div class="screen-sub" style="margin-top:18px; max-width:420px; margin-left:auto; margin-right:auto; font-size:14px;">Choose how you'll use CURSORCODE right now</div>
+    </div>
+    <div style="display:grid; grid-template-columns:1fr; gap:20px; max-width:720px; margin:40px auto 0;" class="mode-grid">
+      <div class="card" style="cursor:pointer; padding:36px 28px; min-height:auto; border-color:#1E2933; text-align:center;" onclick="selectMode('special')">
+        <div class="icon" style="font-size:42px;">👁</div>
+        <div class="title" style="font-size:22px; margin-top:10px;">SPECIAL-PERSON</div>
+        <div class="desc" style="font-size:14px; margin-top:6px;">Control using eye-blink</div>
+      </div>
+      <div class="card" style="cursor:pointer; padding:36px 28px; min-height:auto; border-color:#1E2933; text-align:center;" onclick="selectMode('customizer')">
+        <div class="icon" style="font-size:42px;">⚙</div>
+        <div class="title" style="font-size:22px; margin-top:10px;">CUSTOMIZER</div>
+        <div class="desc" style="font-size:14px; margin-top:6px;">Set up the application normally</div>
+      </div>
+    </div>
+    <div class="screen-sub" style="margin-top:32px; text-align:center; max-width:520px; margin-left:auto; margin-right:auto;">Customizer lets a caregiver type in contacts and device names normally — Special-Person then just blinks to pick from what's already set up.</div>
+    <style>@media (min-width:640px){ .mode-grid{ grid-template-columns:1fr 1fr !important; } }</style>
+  `;
+}
+
+function renderDashboard(){
+  return `
+    <div class="screen-title" style="font-size:26px;">Dashboard</div>
+    <div class="screen-sub">Blink to select · cursor scans automatically</div>
+    <div class="card-grid" style="margin-top:18px;">
+      <div class="card" data-scan data-log="NEED FOOD" onclick="sendNeed('Need Food')"><div class="pip"></div><div class="icon">🍽️</div><div><div class="title">NEED FOOD</div><div class="desc">Notify caregiver</div></div></div>
+      <div class="card" data-scan data-log="NEED WATER" onclick="sendNeed('Need Water')"><div class="pip"></div><div class="icon">💧</div><div><div class="title">NEED WATER</div><div class="desc">Request water</div></div></div>
+      <div class="card" data-scan data-log="NEED HELP" onclick="sendNeed('Need Help')"><div class="pip"></div><div class="icon">🆘</div><div><div class="title">NEED HELP</div><div class="desc">Ask for assistance</div></div></div>
+      <div class="card" data-scan data-log="KEY-EXPRESS" onclick="go('key-express')"><div class="pip"></div><div class="icon">⌨️</div><div><div class="title">KEY-EXPRESS</div><div class="desc">Type &amp; communicate</div></div></div>
+      <div class="card" data-scan data-log="HOME CONTROL" onclick="go('home-control')"><div class="pip"></div><div class="icon">🏠</div><div><div class="title">HOME CONTROL</div><div class="desc">Control surroundings</div></div></div>
+      <div class="card" data-scan data-log="WHEELCHAIR" onclick="go('wheelchair')"><div class="pip"></div><div class="icon">🦽</div><div><div class="title">WHEELCHAIR</div><div class="desc">Control movement</div></div></div>
+      <div class="card emergency" data-scan data-log="EMERGENCY" onclick="go('emergency')"><div class="pip"></div><div class="icon">🚨</div><div><div class="title">EMERGENCY</div><div class="desc">Send emergency alert</div></div></div>
+      <div class="card" data-scan data-log="HARDWARE" onclick="go('bluetooth')"><div class="pip"></div><div class="icon">📶</div><div><div class="title">HARDWARE</div><div class="desc">Bluetooth &amp; EOG status</div></div></div>
+      <div class="card" data-scan data-log="SETTINGS" onclick="go('settings')"><div class="pip"></div><div class="icon">⚙️</div><div><div class="title">SETTINGS</div><div class="desc">Preferences</div></div></div>
+      <div class="card" data-scan data-log="LOG" onclick="go('log')"><div class="pip"></div><div class="icon">🧾</div><div><div class="title">COMMAND LOG</div><div class="desc">Diagnostics</div></div></div>
+    </div>
+  `;
+}
+
+function needScreenKey(need){ return need.toLowerCase().replace(' ','-')+'-confirm'; }
+function renderNeedConfirm(need, alertLine){
+  const key = needScreenKey(need);
+  const sentKey = 'sent_'+key;
+  const wasSent = !!state[sentKey];
+  return `
+    ${screenHeader('REQUEST', need.toUpperCase())}
+    <div class="confirm-hero">
+      <div class="big">${need.toUpperCase()}</div>
+      <div class="screen-sub">Recipient: Caregiver</div>
+    </div>
+    <div class="msgbar">"${alertLine}"</div>
+    ${wasSent ? `<div class="feedback-banner">✓ MESSAGE SENT</div>` : ''}
+    <div class="stack">
+      <div class="btn primary" data-scan data-log="SEND" onclick="state.${sentKey}=true; confirmSend('${alertLine}');">SEND</div>
+      ${backRow()}
+    </div>
+  `;
+}
+
+function renderKeyExpress(){
+  const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+  return `
+    ${screenHeader('COMMUNICATION', 'KEY-EXPRESS', 'Cursor scans each letter — blink to type')}
+    <div class="msgbar ${state.message?'':'empty'}">${state.message ? state.message : 'Message will appear here…'}<span class="cursor-blink"></span></div>
+    <div class="kb-grid">
+      ${letters.map(l=>`<div class="key" data-scan data-log="KEY_${l}" onclick="typeLetter('${l}')">${l}</div>`).join('')}
+    </div>
+    <div class="kb-controls">
+      <div class="key key-wide" data-scan data-log="SPACE" onclick="typeSpace()">SPACE</div>
+      <div class="key key-wide" data-scan data-log="BACKSPACE" onclick="backspace()">⌫ BACK</div>
+      <div class="key key-wide" data-scan data-log="CLEAR" onclick="clearMsg()">CLEAR</div>
+    </div>
+    <div class="btn-row">
+      <div class="btn primary" data-scan data-log="SAVED CONTACTS" onclick="goSendFlow()">SAVED CONTACTS</div>
+      <div class="btn" data-scan data-log="SEARCH YOUTUBE" onclick="goYoutube()">▶ YOUTUBE</div>
+    </div>
+    ${backRow('EXIT')}
+  `;
+}
+
+function renderSelectContact(){
+  return `
+    ${screenHeader('SAVED CONTACTS', 'CHOOSE A RECIPIENT', 'Cursor scans each contact — blink to pick')}
+    <div class="msgbar">"${state.message}"</div>
+    ${state.contacts.map(c=>`
+      <div class="row" data-scan data-log="${c.name}" onclick="selectContactForMessage('${c.name}')">
+        <div><div class="rt" style="font-size:17px;">${c.name}</div><div class="rs">${c.rel}</div></div>
+        <div class="val">${c.phone}</div>
+      </div>
+    `).join('')}
+    ${backRow()}
+  `;
+}
+
+function renderConfirmRecipient(){
+  const c = state.contacts.find(x=>x.name===state.selectedContact) || {};
+  return `
+    ${screenHeader('SAVED CONTACTS', 'CONFIRM RECIPIENT')}
+    <div class="confirm-hero">
+      <div class="big">Recipient: ${state.selectedContact}</div>
+      <div class="screen-sub">${c.phone || ''}</div>
+    </div>
+    <div class="msgbar">"${state.message}"</div>
+    <div class="stack">
+      <div class="btn primary" data-scan data-log="SEND MESSAGE" onclick="sendMessageToContact()">SEND MESSAGE</div>
+      <div class="btn" data-scan data-log="CHOOSE ANOTHER CONTACT" onclick="go('select-contact', false)">CHOOSE ANOTHER CONTACT</div>
+      ${backRow('EXIT')}
+    </div>
+  `;
+}
+
+function renderMessageSent(){
+  return `
+    <div class="confirm-hero">
+      <div class="check">✓</div>
+      <div class="big">MESSAGE SENT</div>
+      <div class="screen-sub">To: ${state.selectedContact}</div>
+    </div>
+    <div class="msgbar">"${state.message}"</div>
+    <div class="stack">
+      <div class="btn primary" data-scan data-log="NEW MESSAGE" onclick="clearMsg(); go('key-express', false);">NEW MESSAGE</div>
+      <div class="btn" data-scan data-log="DASHBOARD" onclick="go('dashboard', false)">DASHBOARD</div>
+    </div>
+  `;
+}
+
+function renderYoutube(){
+  return `
+    ${screenHeader('ENTERTAINMENT', 'YOUTUBE SEARCH')}
+    <div class="msgbar ${state.ytQuery?'':'empty'}">${state.ytQuery || 'No search query yet'}</div>
+    <div class="row" style="cursor:default;"><div><div class="rt">🎬 ${state.ytQuery || 'Result'} — Official</div><div class="rs">Simulated search result</div></div></div>
+    <div class="row" style="cursor:default;"><div><div class="rt">🎬 ${state.ytQuery || 'Result'} — Live</div><div class="rs">Simulated search result</div></div></div>
+    <div class="stack">
+      <div class="btn primary" data-scan data-log="PLAY">▶ PLAY</div>
+      <div class="btn" data-scan data-log="PAUSE">⏸ PAUSE</div>
+      ${backRow('EXIT')}
+    </div>
+  `;
+}
+
+function renderHomeControl(){
+  const d = state.devices;
+  return `
+    ${screenHeader('SURROUNDINGS', 'HOME CONTROL', 'Blink to toggle a device')}
+    <div class="device-card" data-scan data-log="FAN" onclick="toggleDevice('fan')">
+      <div style="display:flex;align-items:center;gap:12px;"><div class="icon">🌀</div><div><div class="name">FAN</div><div class="state">${d.fan?'ON':'OFF'} · FAN_${d.fan?'ON':'OFF'}</div></div></div>
+      <div class="switch ${d.fan?'on':''}"><div class="knob"></div></div>
+    </div>
+    <div class="device-card" data-scan data-log="LIGHT" onclick="toggleDevice('light')">
+      <div style="display:flex;align-items:center;gap:12px;"><div class="icon">💡</div><div><div class="name">LIGHT</div><div class="state">${d.light?'ON':'OFF'} · LIGHT_${d.light?'ON':'OFF'}</div></div></div>
+      <div class="switch ${d.light?'on':''}"><div class="knob"></div></div>
+    </div>
+    <div class="device-card" data-scan data-log="${d.custom1.name}" onclick="toggleDevice('custom1')">
+      <div style="display:flex;align-items:center;gap:12px;"><div class="icon">🔌</div><div><div class="name">${d.custom1.name.toUpperCase()}</div><div class="state">${d.custom1.on?'ON':'OFF'} · CUSTOM1_${d.custom1.on?'ON':'OFF'}</div></div></div>
+      <div class="switch ${d.custom1.on?'on':''}"><div class="knob"></div></div>
+    </div>
+    <div class="device-card" data-scan data-log="${d.custom2.name}" onclick="toggleDevice('custom2')">
+      <div style="display:flex;align-items:center;gap:12px;"><div class="icon">🔌</div><div><div class="name">${d.custom2.name.toUpperCase()}</div><div class="state">${d.custom2.on?'ON':'OFF'} · CUSTOM2_${d.custom2.on?'ON':'OFF'}</div></div></div>
+      <div class="switch ${d.custom2.on?'on':''}"><div class="knob"></div></div>
+    </div>
+    ${backRow()}
+  `;
+}
+
+function renderWheelchair(){
+  return `
+    ${screenHeader('MOBILITY', 'WHEELCHAIR CONTROL', state.bluetooth ? 'Bluetooth linked · commands live' : 'Bluetooth disconnected — movement blocked')}
+    <div class="wheel-grid">
+      <div></div>
+      <div class="wbtn" data-scan data-log="FORWARD" onclick="wheelchairCmd('WHEELCHAIR_FORWARD')">⬆</div>
+      <div></div>
+      <div class="wbtn" data-scan data-log="LEFT" onclick="wheelchairCmd('WHEELCHAIR_LEFT')">⬅</div>
+      <div class="wbtn stop" data-scan data-log="STOP" onclick="wheelchairCmd('STOP')">■</div>
+      <div class="wbtn" data-scan data-log="RIGHT" onclick="wheelchairCmd('WHEELCHAIR_RIGHT')">➡</div>
+      <div></div>
+      <div class="wbtn" data-scan data-log="BACKWARD" onclick="wheelchairCmd('WHEELCHAIR_BACKWARD')">⬇</div>
+      <div></div>
+    </div>
+    <div class="feedback-banner">LAST COMMAND: ${state.wheelchairLast}</div>
+    ${backRow()}
+  `;
+}
+
+function renderEmergency(){
+  return `
+    <div class="confirm-hero">
+      <div class="icon" style="font-size:44px;">🚨</div>
+      <div class="big" style="color:var(--amber);">EMERGENCY ALERT</div>
+      <div class="screen-sub">This screen is always one blink away</div>
+    </div>
+    <div class="stack">
+      <div class="btn danger" data-scan data-log="CALL CAREGIVER" onclick="pushLog('SIMULATED CALL → Caregiver'); render();">📞 CALL CAREGIVER</div>
+      <div class="btn danger" data-scan data-log="SEND EMERGENCY MESSAGE" onclick="pushLog('EMERGENCY ALERT SENT → Mother'); render();">✉ SEND EMERGENCY MESSAGE</div>
+      <div class="btn danger" data-scan data-log="CALL EMERGENCY CONTACT" onclick="pushLog('SIMULATED CALL → Emergency Contact'); render();">📞 CALL EMERGENCY CONTACT</div>
+      ${backRow()}
+    </div>
+    ${state.log[0] && state.log[0].c.includes('CALL') || (state.log[0] && state.log[0].c.includes('EMERGENCY ALERT')) ? `<div class="feedback-banner">✓ ${state.log[0].c}</div>` : ''}
+  `;
+}
+
+function renderBluetooth(){
+  return `
+    ${screenHeader('DIAGNOSTICS', 'HARDWARE CONNECTION')}
+    <div class="conn-status">
+      <div class="big-dot ${state.bluetooth?'on':'off'}"></div>
+      <div class="label">${state.bluetooth?'🟢 CONNECTED':'🔴 DISCONNECTED'}</div>
+      <div class="screen-sub" style="margin-top:6px;">Device: CURSORCODE_CONTROLLER</div>
+    </div>
+    <div class="row" style="cursor:default;"><div><div class="rt">EOG STATUS</div><div class="rs">${state.eog==='ready'?'Signal detected':'Waiting for signal'}</div></div></div>
+    <div class="row" style="cursor:default;"><div><div class="rt">LAST COMMAND</div><div class="rs">${state.log[0]? state.log[0].c : 'BLINK / SELECT'}</div></div></div>
+    <div class="row" style="cursor:default;"><div><div class="rt">SIGNAL PATH</div><div class="rs">Arduino Nano → Bluetooth → Mobile</div></div></div>
+    <div class="stack">
+      <div class="btn" data-scan data-log="SCAN DEVICES" onclick="pushLog('SCANNING FOR DEVICES…'); render();">SCAN DEVICES</div>
+      <div class="btn primary" data-scan data-log="${state.bluetooth?'DISCONNECT':'CONNECT'}" onclick="toggleBluetooth()">${state.bluetooth?'DISCONNECT':'CONNECT'}</div>
+      ${backRow()}
+    </div>
+  `;
+}
+
+function renderLog(){
+  return `
+    ${screenHeader('DIAGNOSTICS', 'COMMAND LOG', 'Live feed of received commands')}
+    <div style="background:var(--panel); border:1.5px solid var(--line); border-radius:14px; padding:6px 14px;">
+      ${state.log.length===0 ? `<div class="screen-sub" style="padding:12px 0;">No commands yet — try Simulate Blink.</div>` :
+        state.log.map(e=>`<div class="log-entry"><span class="t">${e.t}</span><span class="c">${e.c}</span></div>`).join('')}
+    </div>
+    ${backRow()}
+  `;
+}
+
+function renderSettings(){
+  const d = state.devices;
+  return `
+    ${screenHeader('PREFERENCES', 'SETTINGS')}
+    <div class="row" data-scan data-log="CONTACTS" onclick="go('settings-contacts')"><div><div class="rt">CONTACTS</div><div class="rs">Add, edit &amp; manage saved contacts</div></div><div class="val">${state.contacts.length}</div></div>
+    <div class="row" data-scan data-log="HOME CONTROL DEVICE MANAGEMENT" onclick="go('device-management')"><div><div class="rt">HOME CONTROL</div><div class="rs">Device Management — rename controls</div></div><div class="val">→</div></div>
+    <div class="row" data-scan data-log="BLUETOOTH" onclick="go('bluetooth')"><div><div class="rt">BLUETOOTH</div><div class="rs">Connect / disconnect hardware</div></div><div class="val">${state.bluetooth?'ON':'OFF'}</div></div>
+
+    <div class="eyebrow" style="margin-top:14px;">CURSOR SPEED</div>
+    <div class="seg">
+      <div class="seg-opt ${state.cursorSpeed==='slow'?'sel':''}" data-scan data-log="SPEED SLOW" onclick="setSpeed('slow')">SLOW</div>
+      <div class="seg-opt ${state.cursorSpeed==='medium'?'sel':''}" data-scan data-log="SPEED MEDIUM" onclick="setSpeed('medium')">MEDIUM</div>
+      <div class="seg-opt ${state.cursorSpeed==='fast'?'sel':''}" data-scan data-log="SPEED FAST" onclick="setSpeed('fast')">FAST</div>
+    </div>
+
+    <div class="eyebrow" style="margin-top:14px;">BLINK SENSITIVITY</div>
+    <div class="seg">
+      <div class="seg-opt ${state.sensitivity==='low'?'sel':''}" data-scan data-log="SENS LOW" onclick="setSensitivity('low')">LOW</div>
+      <div class="seg-opt ${state.sensitivity==='medium'?'sel':''}" data-scan data-log="SENS MEDIUM" onclick="setSensitivity('medium')">MEDIUM</div>
+      <div class="seg-opt ${state.sensitivity==='high'?'sel':''}" data-scan data-log="SENS HIGH" onclick="setSensitivity('high')">HIGH</div>
+    </div>
+
+    <div class="eyebrow" style="margin-top:14px;">LANGUAGE</div>
+    <div class="seg">
+      <div class="seg-opt ${state.language==='English'?'sel':''}" data-scan data-log="LANG EN" onclick="setLanguage('English')">EN</div>
+      <div class="seg-opt ${state.language==='Hindi'?'sel':''}" data-scan data-log="LANG HI" onclick="setLanguage('Hindi')">HI</div>
+      <div class="seg-opt ${state.language==='Marathi'?'sel':''}" data-scan data-log="LANG MR" onclick="setLanguage('Marathi')">MR</div>
+    </div>
+
+    <div class="row" style="margin-top:14px;" data-scan data-log="AUDIO FEEDBACK" onclick="toggleAudio()"><div><div class="rt">AUDIO FEEDBACK</div></div><div class="switch ${state.audio?'on':''}"><div class="knob"></div></div></div>
+    <div class="row" data-scan data-log="HAPTIC FEEDBACK" onclick="toggleHaptic()"><div><div class="rt">HAPTIC FEEDBACK</div></div><div class="switch ${state.haptic?'on':''}"><div class="knob"></div></div></div>
+
+    <div class="row" data-scan data-log="SYSTEM OVERVIEW" onclick="go('overview')"><div><div class="rt">SYSTEM OVERVIEW</div><div class="rs">Hardware architecture</div></div><div class="val">→</div></div>
+    <div class="row" data-scan data-log="SWITCH MODE" onclick="switchMode()"><div><div class="rt">SWITCH MODE</div><div class="rs">Return to mode selection</div></div><div class="val">⇄</div></div>
+    ${backRow()}
+  `;
+}
+
+function renderDeviceManagement(){
+  const d = state.devices;
+  return `
+    ${screenHeader('SETTINGS → HOME CONTROL', 'DEVICE MANAGEMENT', 'Set by the caregiver — patients only ever see the final name')}
+    <div class="row" style="cursor:default; flex-direction:column; align-items:stretch; gap:10px;">
+      <div><div class="rt">DEVICE 1</div><div class="rs">Default name: CUSTOM DEVICE 1</div></div>
+      <input type="text" value="${d.custom1.name}" placeholder="Enter device name"
+        oninput="state.devices.custom1.name=this.value"
+        style="background:var(--panel-2); border:1.5px solid var(--line); border-radius:10px; padding:12px 14px; color:var(--text); font-family:'Space Grotesk'; font-size:14px; width:100%;">
+    </div>
+    <div class="row" style="cursor:default; flex-direction:column; align-items:stretch; gap:10px; margin-top:12px;">
+      <div><div class="rt">DEVICE 2</div><div class="rs">Default name: CUSTOM DEVICE 2</div></div>
+      <input type="text" value="${d.custom2.name}" placeholder="Enter device name"
+        oninput="state.devices.custom2.name=this.value"
+        style="background:var(--panel-2); border:1.5px solid var(--line); border-radius:10px; padding:12px 14px; color:var(--text); font-family:'Space Grotesk'; font-size:14px; width:100%;">
+    </div>
+    <div class="stack">
+      <div class="btn primary" data-scan data-log="SAVE DEVICE NAMES" onclick="saveDeviceNames()">SAVE DEVICE NAMES</div>
+      ${backRow()}
+    </div>
+    <div class="screen-sub" style="margin-top:10px;">Fan and Light are fixed controls. Device 1 and Device 2 are yours to name — e.g. TV, AC, Table Lamp — and the new name appears immediately on the patient's Home Control screen.</div>
+  `;
+}
+
+function renderSettingsContacts(){
+  return `
+    ${screenHeader('SETTINGS → CONTACTS', 'CONTACT MANAGEMENT', 'Add and manage the people who appear in Key-Express')}
+    <div class="btn primary" data-scan data-log="ADD CONTACT" onclick="openAddContact()" style="margin-bottom:14px;">+ ADD CONTACT</div>
+    ${state.contacts.map((c,i)=>`
+      <div class="row" data-scan data-log="EDIT ${c.name}" onclick="openEditContact(${i})">
+        <div><div class="rt">${c.name}</div><div class="rs">${c.rel} · ${c.phone}</div></div>
+        <div class="val" data-scan data-log="DELETE ${c.name}" onclick="event.stopPropagation(); deleteContact(${i})" style="color:var(--amber);">DELETE</div>
+      </div>
+    `).join('')}
+    ${backRow()}
+  `;
+}
+
+function renderContactForm(){
+  const d = state.contactDraft;
+  const editing = state.contactEditIndex !== null;
+  return `
+    ${screenHeader('SETTINGS → CONTACTS', editing ? 'EDIT CONTACT' : 'ADD CONTACT')}
+    <div class="row" style="cursor:default; flex-direction:column; align-items:stretch; gap:8px;">
+      <div class="rs">NAME</div>
+      <input type="text" value="${d.name}" placeholder="e.g. Mother" oninput="state.contactDraft.name=this.value"
+        style="background:var(--panel-2); border:1.5px solid var(--line); border-radius:10px; padding:12px 14px; color:var(--text); font-family:'Space Grotesk'; font-size:14px; width:100%;">
+    </div>
+    <div class="row" style="cursor:default; flex-direction:column; align-items:stretch; gap:8px; margin-top:10px;">
+      <div class="rs">PHONE NUMBER</div>
+      <input type="text" value="${d.phone}" placeholder="+91 XXXXX XXXXX" oninput="state.contactDraft.phone=this.value"
+        style="background:var(--panel-2); border:1.5px solid var(--line); border-radius:10px; padding:12px 14px; color:var(--text); font-family:'JetBrains Mono'; font-size:13px; width:100%;">
+    </div>
+    <div class="row" style="cursor:default; flex-direction:column; align-items:stretch; gap:8px; margin-top:10px;">
+      <div class="rs">RELATIONSHIP</div>
+      <input type="text" value="${d.rel}" placeholder="e.g. Mother, Caregiver, Doctor" oninput="state.contactDraft.rel=this.value"
+        style="background:var(--panel-2); border:1.5px solid var(--line); border-radius:10px; padding:12px 14px; color:var(--text); font-family:'Space Grotesk'; font-size:14px; width:100%;">
+    </div>
+    <div class="stack">
+      <div class="btn primary" data-scan data-log="SAVE CONTACT" onclick="saveContact()">SAVE CONTACT</div>
+      <div class="btn" data-scan data-log="CANCEL" onclick="go('settings-contacts', false)">CANCEL</div>
+    </div>
+  `;
+}
+
+function renderOverview(){
+  return `
+    ${screenHeader('SYSTEM', 'SYSTEM OVERVIEW', 'How CURSORCODE talks to the hardware')}
+    <div class="stack">
+      <div class="row" style="cursor:default;"><div><div class="rt">1 · EOG SENSOR</div><div class="rs">Detects intentional eye blinks</div></div></div>
+      <div class="row" style="cursor:default;"><div><div class="rt">2 · ARDUINO NANO</div><div class="rs">Processes signal into a command</div></div></div>
+      <div class="row" style="cursor:default;"><div><div class="rt">3 · BLUETOOTH MODULE</div><div class="rs">Transmits command wirelessly</div></div></div>
+      <div class="row" style="cursor:default;"><div><div class="rt">4 · CURSORCODE APP</div><div class="rs">Receives command, selects option</div></div></div>
+      <div class="row" style="cursor:default;"><div><div class="rt">5 · OUTPUTS</div><div class="rs">Communication · Home · Wheelchair · Emergency</div></div></div>
+    </div>
+    ${backRow('DASHBOARD')}
+  `;
+}
+
+/* ============ MAIN RENDER ============ */
+function render(){
+  const app = document.getElementById('app');
+  let html = '';
+  switch(state.screen){
+    case 'dashboard': html = renderDashboard(); break;
+    case 'mode-select': html = renderModeSelect(); break;
+    case 'need-food-confirm': html = renderNeedConfirm('Need Food', 'CURSORCODE ALERT: I need food.'); break;
+    case 'need-water-confirm': html = renderNeedConfirm('Need Water', 'CURSORCODE ALERT: I need water.'); break;
+    case 'need-help-confirm': html = renderNeedConfirm('Need Help', 'CURSORCODE ALERT: I need help.'); break;
+    case 'key-express': html = renderKeyExpress(); break;
+    case 'select-contact': html = renderSelectContact(); break;
+    case 'confirm-recipient': html = renderConfirmRecipient(); break;
+    case 'message-sent': html = renderMessageSent(); break;
+    case 'youtube': html = renderYoutube(); break;
+    case 'home-control': html = renderHomeControl(); break;
+    case 'wheelchair': html = renderWheelchair(); break;
+    case 'emergency': html = renderEmergency(); break;
+    case 'bluetooth': html = renderBluetooth(); break;
+    case 'log': html = renderLog(); break;
+    case 'settings': html = renderSettings(); break;
+    case 'settings-contacts': html = renderSettingsContacts(); break;
+    case 'device-management': html = renderDeviceManagement(); break;
+    case 'contact-form': html = renderContactForm(); break;
+    case 'overview': html = renderOverview(); break;
+    default: html = renderDashboard();
+  }
+
+  app.innerHTML = html;
+
+  const statusbar = document.getElementById('statusbar');
+  const controlbar = document.getElementById('controlbar');
+  const emgfab = document.getElementById('emgfab');
+
+  if(state.screen === 'mode-select'){
+    statusbar.style.display = 'none';
+    controlbar.style.display = 'none';
+    emgfab.style.display = 'none';
+    clearInterval(scanTimer);
+    scanItems = [];
+    return;
+  }
+
+  statusbar.style.display = 'flex';
+  emgfab.style.display = state.screen==='emergency' ? 'none' : 'flex';
+  renderStatusBar();
+
+  if(state.mode === 'special'){
+    controlbar.style.display = 'flex';
+    setupScanning();
+  } else {
+    controlbar.style.display = 'none';
+    clearInterval(scanTimer);
+    scanItems = [];
+  }
+}
+
+render();
+</script>
+</body>
+</html>
